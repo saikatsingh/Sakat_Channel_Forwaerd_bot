@@ -1,32 +1,28 @@
-from pyrogram import Client, filters
-from pyrogram.session import StringSession
 import os
+from pyrogram import Client, filters
+from pyrogram.session.string_session import StringSession
 
-# 📦 Env variables (set in Koyeb)
-API_ID = int(os.getenv("USERBOT_API_ID", "20389440"))
-API_HASH = os.getenv("USERBOT_API_HASH", "a1a06a18eb9153e9dbd447cfd5da2457")
-SOURCE_CHANNEL_ID = int(os.getenv("SOURCE_CHANNEL_ID", "-1001234567890"))
-DEST_CHANNEL_ID = int(os.getenv("DEST_CHANNEL_ID", "-1009876543210"))
+# Get environment variables
+API_ID = int(os.environ.get("USERBOT_API_ID"))
+API_HASH = os.environ.get("USERBOT_API_HASH")
+SESSION_STRING = os.environ.get("USER_SESSION_STRING")
+SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID"))
+DEST_CHANNEL_ID = int(os.environ.get("DEST_CHANNEL_ID"))
 
-# 🔐 Your actual string session here
-STRING_SESSION = "📌 paste your full string session here"
-
-# 🤖 Start userbot with StringSession
+# Create userbot client
 app = Client(
-    name=StringSession(STRING_SESSION),
+    session_name=StringSession(SESSION_STRING),
     api_id=API_ID,
-    api_hash=API_HASH,
-    in_memory=True
+    api_hash=API_HASH
 )
 
-# 🔁 Forward messages from source to destination
+# Forward messages from source to destination
 @app.on_message(filters.chat(SOURCE_CHANNEL_ID))
-async def forward_to_dest(client, message):
+async def forward_message(client, message):
     try:
         await message.copy(DEST_CHANNEL_ID)
-        print(f"✅ Forwarded: {message.text or message.caption}")
+        print("✅ Message forwarded")
     except Exception as e:
-        print(f"⚠️ Failed to forward: {e}")
+        print(f"❌ Error: {e}")
 
-# 🚀 Start the app
 app.run()
